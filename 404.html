@@ -1,0 +1,10 @@
+<!doctype html>
+<html lang="pt-BR"><head><meta charset="utf-8"><meta name="robots" content="noindex, nofollow"><title>Prévia reservada</title>
+<script>
+(function () {
+  // link direto para uma página da prévia num aparelho que ainda não tem a senha: vai ao portão e volta para ela depois
+  var p = location.pathname.split("/"), repo = p[1] || "";
+  var dentro = p[2] === "s" ? p.slice(3).join("/") : "";
+  location.replace("/" + repo + "/" + (dentro ? "?volta=" + encodeURIComponent(decodeURIComponent(dentro)) : ""));
+})();
+</script></head><body></body></html>

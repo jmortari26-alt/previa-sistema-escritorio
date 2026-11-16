@@ -1,0 +1,158 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="robots" content="noindex, nofollow">
+<meta name="theme-color" content="#F3F1EC">
+<title>Prévia reservada</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect x='6' y='6' width='52' height='52' fill='%23F3F1EC' stroke='%237A5536' stroke-width='2'/%3E%3Cpath d='M20 44V20h24' fill='none' stroke='%23221E1A' stroke-width='3'/%3E%3C/svg%3E">
+<style>
+@font-face{font-family:"Titulo";src:url(titulo.woff2) format("woff2");font-display:swap}
+@font-face{font-family:"Texto";src:url(texto.woff2) format("woff2");font-weight:100 900;font-display:swap}
+:root{--fundo:#F3F1EC;--papel:#FBFAF7;--tinta:#221E1A;--tinta-2:#5C554D;--linha:#DDD7CD;--bronze:#7A5536}
+*{box-sizing:border-box}
+html,body{margin:0;min-height:100%;background:var(--fundo);color:var(--tinta);font:16px/1.55 "Texto",system-ui,-apple-system,"Segoe UI",sans-serif}
+body{background:linear-gradient(180deg,rgba(255,255,255,.35),rgba(255,255,255,0) 60%),var(--fundo)}
+.selo{position:fixed;top:0;left:0;right:0;height:30px;display:flex;align-items:center;justify-content:center;font-size:12px;letter-spacing:.02em;color:var(--tinta-2);background:rgba(251,250,247,.92);border-bottom:1px solid var(--linha)}
+.portao{min-height:100svh;display:grid;place-items:center;padding:62px 20px 32px}
+.cartao{width:min(420px,100%);text-align:center;background:var(--papel);border:1px solid var(--linha);padding:44px 34px 34px;box-shadow:0 1px 0 rgba(255,255,255,.8) inset,0 24px 48px -30px rgba(34,30,26,.35),0 2px 6px -3px rgba(34,30,26,.18)}
+.marca{width:46px;height:46px;margin:0 auto 22px;display:block}
+h1{font:400 40px/1.05 "Titulo",Georgia,serif;margin:0 0 10px;letter-spacing:-.005em;text-wrap:balance}
+.sub{color:var(--tinta-2);margin:0 0 28px;text-wrap:balance}
+form{display:grid;gap:12px}
+input[type=password]{width:100%;height:52px;border-radius:0;border:1px solid var(--linha);background:#FFFDF9;color:var(--tinta);font:inherit;font-size:17px;padding:0 16px;text-align:center;letter-spacing:.04em;transition:border-color .25s,box-shadow .25s}
+input[type=password]:focus{outline:none;border-color:var(--bronze);box-shadow:0 0 0 3px rgba(122,85,54,.15)}
+button{height:52px;border:0;border-radius:0;background:var(--tinta);color:#F4EFE6;font:inherit;font-weight:500;font-size:16px;cursor:pointer;box-shadow:0 14px 28px -16px rgba(34,30,26,.7);transition:transform .2s,box-shadow .2s}
+button:hover{transform:translateY(-1px);box-shadow:0 18px 30px -16px rgba(34,30,26,.75)}
+button:disabled{opacity:.6;cursor:default;transform:none}
+.msg{min-height:22px;font-size:14px;color:var(--tinta-2);margin:2px 0 0}
+.msg.erro{color:#9A3B2E}
+.barra{height:2px;background:var(--linha);overflow:hidden;opacity:0;transition:opacity .3s}
+.barra.ativa{opacity:1}
+.barra i{display:block;height:100%;width:30%;background:var(--bronze);animation:anda 1.2s ease-in-out infinite}
+@keyframes anda{from{transform:translateX(-100%)}to{transform:translateX(340%)}}
+.nota{margin:22px 0 0;font-size:12.5px;color:var(--tinta-2)}
+</style>
+</head>
+<body>
+<div class="selo">Amostra de demonstração · não é um sistema em uso</div>
+<main class="portao">
+  <div class="cartao">
+    <svg class="marca" viewBox="0 0 46 46" aria-hidden="true"><rect x="1" y="1" width="44" height="44" fill="none" stroke="#7A5536"/><path d="M14 33V14h19" fill="none" stroke="#221E1A" stroke-width="1.6"/><path d="M19 33V19h14" fill="none" stroke="#7A5536" stroke-width="1"/></svg>
+    <h1>Prévia reservada</h1>
+    <p class="sub">Amostra de sistema para escritório de arquitetura.<br>Digite a senha que você recebeu.</p>
+    <form id="f" autocomplete="off">
+      <input id="senha" type="password" placeholder="Senha" aria-label="Senha" required>
+      <button id="b" type="submit">Abrir a prévia</button>
+      <div class="barra" id="barra" aria-hidden="true"><i></i></div>
+      <p class="msg" id="m" role="status"></p>
+    </form>
+    <p class="nota">A senha fica lembrada neste aparelho.</p>
+  </div>
+</main>
+<script>
+(function () {
+  var VOLTAS = 310000, MANIFESTO = "m-fb3ed13708a5a4a3.bin", BLOCO = 262144;
+  function hex(h) { return new Uint8Array(h.match(/../g).map(function (x) { return parseInt(x, 16); })); }
+  var SAL = hex("aaf2ab85e7f0b9956461b9955bf561c0"), BASE = new URL("./", location.href).pathname, BANCO = "previa" + BASE;
+  var f = document.getElementById("f"), campo = document.getElementById("senha"), botao = document.getElementById("b");
+  var msg = document.getElementById("m"), barra = document.getElementById("barra");
+  // página pedida antes da senha (um link direto): volta para ela depois
+  var volta = (new URLSearchParams(location.search).get("volta") || "").replace(/^\/+/, "");
+  if (!/^[\w\-.\/%]*$/.test(volta) || volta.indexOf("..") >= 0 || volta.indexOf("//") >= 0) { volta = ""; }
+  function estado(texto, erro) { msg.className = erro ? "msg erro" : "msg"; msg.textContent = texto; barra.classList.toggle("ativa", !erro && !!texto); }
+  function banco() {
+    return new Promise(function (ok, falha) {
+      var r = indexedDB.open(BANCO, 1);
+      r.onupgradeneeded = function () { r.result.createObjectStore("k"); };
+      r.onsuccess = function () { ok(r.result); }; r.onerror = function () { falha(r.error); };
+    });
+  }
+  function idb(modo, faz) {
+    return banco().then(function (db) {
+      return new Promise(function (ok, falha) {
+        var t = db.transaction("k", modo), p = faz(t.objectStore("k"));
+        t.oncomplete = function () { ok(p && p.result); }; t.onerror = function () { falha(t.error); };
+      });
+    });
+  }
+  var manifesto = null;
+  function baixarManifesto() {
+    if (!manifesto) {
+      manifesto = fetch(MANIFESTO).then(function (r) { if (!r.ok) { throw new Error("rede"); } return r.arrayBuffer(); });
+      manifesto.catch(function () { manifesto = null; });
+    }
+    return manifesto;
+  }
+  function vetor(v, i) { var x = new Uint8Array(12); x.set(v, 0); new DataView(x.buffer).setUint32(8, i); return x; }
+  // a senha está certa se o índice cifrado abre com a chave dela
+  function confere(bruta) {
+    return Promise.all([baixarManifesto(), crypto.subtle.importKey("raw", bruta, "AES-GCM", false, ["decrypt"])]).then(function (r) {
+      var b = new Uint8Array(r[0]), v = b.subarray(0, 8), cif = b.subarray(8), passos = [], C = BLOCO + 16;
+      for (var i = 0; i * C < cif.length; i++) {
+        passos.push(crypto.subtle.decrypt({ name: "AES-GCM", iv: vetor(v, i) }, r[1], cif.subarray(i * C, Math.min(cif.length, (i + 1) * C))));
+      }
+      return Promise.all(passos).then(function () { return true; }, function () { return false; });
+    });
+  }
+  function derivar(senha) {
+    return crypto.subtle.importKey("raw", new TextEncoder().encode(senha), "PBKDF2", false, ["deriveBits"]).then(function (k) {
+      return crypto.subtle.deriveBits({ name: "PBKDF2", salt: SAL, iterations: VOLTAS, hash: "SHA-256" }, k, 256);
+    });
+  }
+  // instala o service worker desta publicação e espera ele ficar ativo; depois abre o site
+  function entrar(bruta) {
+    var versao = "sw.js?v=" + MANIFESTO;
+    return idb("readwrite", function (s) { return s.put(bruta, "chave"); }).then(function () {
+      return navigator.serviceWorker.register(versao, { scope: "./" });
+    }).then(function (reg) {
+      return new Promise(function (ok, falha) {
+        var limite = setTimeout(function () { falha(new Error("sw")); }, 20000);
+        function olha() {
+          var w = reg.active;
+          if (w && w.scriptURL.indexOf(versao) >= 0) { clearTimeout(limite); ok(w); return; }
+          var n = reg.installing || reg.waiting;
+          if (n) { n.addEventListener("statechange", olha, { once: true }); } else { setTimeout(olha, 120); }
+        }
+        olha();
+      });
+    }).then(function (w) {
+      w.postMessage("nova-chave");
+      location.replace("s/" + volta);
+    });
+  }
+  function semSuporte() {
+    return !("serviceWorker" in navigator) || !window.indexedDB || !window.crypto || !crypto.subtle;
+  }
+  function abrir(senha) {
+    if (semSuporte()) { estado("Este navegador não abre a prévia (em janela anônima ou privada, abra numa janela comum).", true); return; }
+    botao.disabled = true; estado("Abrindo a prévia…");
+    var bruta;
+    derivar(senha).then(function (b) { bruta = b; return confere(b); }).then(function (certa) {
+      if (!certa) { throw new Error("senha"); }
+      return entrar(bruta);
+    }).catch(function (e) {
+      botao.disabled = false;
+      if (e && e.message === "senha") { estado("Senha não confere. Tente de novo.", true); campo.select(); return; }
+      if (e && e.message === "rede") { estado("Não foi possível baixar a prévia. Confira a internet e tente de novo.", true); return; }
+      estado("Este navegador não conseguiu abrir a prévia. Tente o Safari ou o Chrome, numa janela comum.", true);
+    });
+  }
+  f.addEventListener("submit", function (e) { e.preventDefault(); if (campo.value.trim()) { abrir(campo.value.trim()); } });
+  campo.addEventListener("input", function () { baixarManifesto().catch(function () {}); }, { once: true });
+  if (semSuporte()) { campo.focus(); return; }
+  // senha lembrada: abre direto; se mudou, pede de novo
+  idb("readonly", function (s) { return s.get("chave"); }).then(function (bruta) {
+    if (!bruta) { campo.focus(); return; }
+    botao.disabled = true; estado("Abrindo a prévia…");
+    return confere(bruta).then(function (certa) {
+      if (certa) { return entrar(bruta); }
+      botao.disabled = false; estado("");
+      return idb("readwrite", function (s) { return s.delete("chave"); }).then(function () { campo.focus(); });
+    });
+  }).catch(function () { botao.disabled = false; estado(""); campo.focus(); });
+})();
+</script>
+</body>
+</html>
