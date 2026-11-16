@@ -69,7 +69,9 @@ async function responder(req, chave, a) {
   // só os blocos que cobrem o trecho pedido
   var C = BLOCO + 16, b0 = Math.floor(ini / BLOCO), b1 = Math.floor(fim / BLOCO), total = n + 16 * Math.ceil(n / BLOCO);
   var de = b0 * C, ate = Math.min((b1 + 1) * C, total) - 1;
-  var resp = await fetch(BASE + nome, (de > 0 || ate < total - 1) ? { headers: { Range: "bytes=" + de + "-" + ate } } : {});
+  // pedido em pedaços fora do cache do navegador (16/11): no GitHub, o Chrome juntava pedaços guardados e depois entregava o
+  // arquivo inteiro cortado (2.292.591 bytes anunciados, 786.480 entregues), e o vídeo parava com "Failed to fetch"
+  var resp = await fetch(BASE + nome, (de > 0 || ate < total - 1) ? { headers: { Range: "bytes=" + de + "-" + ate }, cache: "no-store" } : {});
   if (!resp.ok) { throw new Error("http " + resp.status); }
   var pular = resp.status === 206 ? 0 : de, leitor = resp.body.getReader(), bloco = b0, guarda = new Uint8Array(0);
   function tamanho(i) { return Math.min(BLOCO, n - i * BLOCO) + 16; }
