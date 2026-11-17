@@ -1,5 +1,5 @@
 // Prévia reservada: este service worker decifra o site no próprio aparelho, arquivo por arquivo, bloco a bloco.
-var MANIFESTO = "m-fb3ed13708a5a4a3.bin", BLOCO = 262144;
+var MANIFESTO = "m-53ae8ab5138493de.bin", BLOCO = 262144;
 var BASE = new URL("./", self.location.href).pathname, SITE = BASE + "s/", BANCO = "previa" + BASE;
 self.addEventListener("install", function () { self.skipWaiting(); });
 self.addEventListener("activate", function (e) { e.waitUntil(self.clients.claim()); });
